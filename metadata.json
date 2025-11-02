@@ -1,0 +1,5 @@
+{
+  "name": "PayWays",
+  "description": "A mobile-first application that serves as a secure payment gateway. Users can select a country, choose a payment method, and make simulated payments. The app includes a Gemini-powered fraud risk analysis and a payment history feature using localStorage.",
+  "requestFramePermissions": []
+}
