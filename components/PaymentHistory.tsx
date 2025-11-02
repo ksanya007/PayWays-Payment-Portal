@@ -47,7 +47,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments }) => {
               </div>
             </div>
             <p className="text-sm font-semibold text-slate-900">
-              ${payment.amount.toFixed(2)}
+              {payment.currencySymbol}{payment.amount.toFixed(2)}
             </p>
           </li>
         ))}

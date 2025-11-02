@@ -4,6 +4,8 @@ export interface Payment {
   country: string;
   paymentMethod: string;
   amount: number;
+  currencyCode: string;
+  currencySymbol: string;
   date: string;
   userId?: string;
 }
@@ -14,6 +16,10 @@ export interface Country {
   code: string;
   name: string;
   paymentMethods: PaymentMethod[];
+  currency: {
+    code: string;
+    symbol: string;
+  }
 }
 
 export interface GeminiRiskAnalysis {

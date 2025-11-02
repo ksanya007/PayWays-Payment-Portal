@@ -20,16 +20,22 @@ const CountryFormModal: React.FC<{
 }> = ({ isOpen, onClose, onSubmit, countryToEdit }) => {
     const [name, setName] = useState('');
     const [code, setCode] = useState('');
+    const [currencyCode, setCurrencyCode] = useState('');
+    const [currencySymbol, setCurrencySymbol] = useState('');
     const [selectedMethods, setSelectedMethods] = useState<Set<PaymentMethod>>(new Set());
 
     useEffect(() => {
         if (countryToEdit) {
             setName(countryToEdit.name);
             setCode(countryToEdit.code);
+            setCurrencyCode(countryToEdit.currency.code);
+            setCurrencySymbol(countryToEdit.currency.symbol);
             setSelectedMethods(new Set(countryToEdit.paymentMethods));
         } else {
             setName('');
             setCode('');
+            setCurrencyCode('');
+            setCurrencySymbol('');
             setSelectedMethods(new Set());
         }
     }, [countryToEdit, isOpen]);
@@ -44,7 +50,12 @@ const CountryFormModal: React.FC<{
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit({ name, code, paymentMethods: Array.from(selectedMethods) });
+        onSubmit({ 
+            name, 
+            code, 
+            paymentMethods: Array.from(selectedMethods),
+            currency: { code: currencyCode, symbol: currencySymbol }
+        });
         onClose();
     };
 
@@ -60,6 +71,16 @@ const CountryFormModal: React.FC<{
                     <div>
                         <label htmlFor="country-code" className="block text-sm font-medium text-slate-700">Country Code (2 letters)</label>
                         <input id="country-code" type="text" value={code} onChange={e => setCode(e.target.value.toUpperCase())} required maxLength={2} minLength={2} disabled={!!countryToEdit} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-2 disabled:bg-slate-100 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="currency-code" className="block text-sm font-medium text-slate-700">Currency Code (e.g. USD)</label>
+                            <input id="currency-code" type="text" value={currencyCode} onChange={e => setCurrencyCode(e.target.value.toUpperCase())} required maxLength={3} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500" />
+                        </div>
+                        <div>
+                            <label htmlFor="currency-symbol" className="block text-sm font-medium text-slate-700">Currency Symbol (e.g. $)</label>
+                            <input id="currency-symbol" type="text" value={currencySymbol} onChange={e => setCurrencySymbol(e.target.value)} required maxLength={3} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500" />
+                        </div>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">Payment Methods</label>
@@ -86,10 +107,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ countries, payme
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [countryToEdit, setCountryToEdit] = useState<Country | null>(null);
 
-    const summary = useMemo(() => ({
-        totalTransactions: payments.length,
-        totalVolume: payments.reduce((sum, p) => sum + p.amount, 0),
-    }), [payments]);
+    const summary = useMemo(() => {
+        // Note: This summary doesn't convert currencies and sums up different currency amounts directly.
+        // For a real app, you'd need currency conversion rates.
+        return {
+            totalTransactions: payments.length,
+            totalVolume: payments.reduce((sum, p) => sum + p.amount, 0),
+        }
+    }, [payments]);
 
     const handleEditClick = (country: Country) => {
         setCountryToEdit(country);
@@ -114,8 +139,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ countries, payme
                     <p className="text-2xl font-bold">{summary.totalTransactions}</p>
                 </div>
                 <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <p className="text-sm text-slate-600">Total Payment Volume</p>
-                    <p className="text-2xl font-bold">${summary.totalVolume.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                    <p className="text-sm text-slate-600">Total Payment Volume (Mixed Currencies)</p>
+                    <p className="text-2xl font-bold">~ ${summary.totalVolume.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                 </div>
             </div>
 
@@ -133,7 +158,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ countries, payme
                         countries.map(country => (
                             <li key={country.code} className="p-4 flex justify-between items-center hover:bg-slate-50">
                                 <div>
-                                    <p className="font-semibold">{country.name} ({country.code})</p>
+                                    <p className="font-semibold">{country.name} ({country.code} - {country.currency.code})</p>
                                     <p className="text-xs text-slate-500">{country.paymentMethods.join(', ')}</p>
                                 </div>
                                 <div className="flex gap-2">

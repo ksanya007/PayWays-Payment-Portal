@@ -2,7 +2,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import type { GeminiRiskAnalysis } from '../types';
 
-export async function analyzeTransactionRisk(details: { country: string; amount: number; paymentMethod: string }): Promise<GeminiRiskAnalysis> {
+export async function analyzeTransactionRisk(details: { country: string; amount: number; paymentMethod: string; currencyCode: string }): Promise<GeminiRiskAnalysis> {
     if (!process.env.API_KEY) {
         console.warn("API_KEY environment variable not set. Returning low risk default.");
         // Return a default low-risk response for UI testing without an API key
@@ -15,10 +15,10 @@ export async function analyzeTransactionRisk(details: { country: string; amount:
       Analyze the following payment transaction for potential fraud risk and return a JSON object.
       Transaction details:
       - Country: ${details.country}
-      - Amount (USD): ${details.amount}
+      - Amount: ${details.amount} ${details.currencyCode}
       - Payment Method: ${details.paymentMethod}
 
-      Consider factors like typical transaction amounts for the country, high-risk countries for certain payment types, unusually large sums, or common fraud patterns associated with the payment method.
+      Consider factors like typical transaction amounts for the country and currency, high-risk countries for certain payment types, unusually large sums, or common fraud patterns associated with the payment method.
       
       Provide:
       1. A 'riskLevel' (low, medium, high).

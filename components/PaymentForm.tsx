@@ -68,6 +68,8 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({ onPaymentSuccess, coun
         country: selectedCountry.name,
         amount: parseFloat(amount),
         paymentMethod: selectedMethod,
+        currencyCode: selectedCountry.currency.code,
+        currencySymbol: selectedCountry.currency.symbol,
     };
 
     const analysisResult: GeminiRiskAnalysis = await analyzeTransactionRisk(transactionDetails);
@@ -193,11 +195,11 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({ onPaymentSuccess, coun
 
       <div>
         <label htmlFor="amount" className="block text-sm font-medium text-slate-700 mb-1">
-          Amount (USD)
+          Amount
         </label>
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <span className="text-gray-500 sm:text-sm">$</span>
+            <span className="text-gray-500 sm:text-sm">{selectedCountry?.currency.symbol || '$'}</span>
           </div>
           <input
             type="number"
